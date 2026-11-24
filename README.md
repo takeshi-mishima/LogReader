@@ -35,7 +35,7 @@
 ## インストールと起動
 
 ```
-pip install -r requirements.txt
+pip install pywin32
 ```
 
 `LogReader.bat` をダブルクリックするか、次のコマンドで起動します。
