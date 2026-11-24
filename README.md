@@ -1,0 +1,52 @@
+# Log Reader
+
+**This is a Japanese-language software.** (The UI and documentation are in Japanese only. Windows only.)
+
+## 概要
+
+アマチュア無線のコンテストログを音声で読み上げるアプリです。
+
+移動運用で手書きしたログをログソフトに入力したあと、手書きログと入力データを目視で見比べるのは視線移動が多くて疲れます。このアプリは入力データを音声で読み上げるので、手書きログから目を離さずに照合できます。
+
+現在対応しているログ形式:
+
+- JARLコンテストログ R1.0
+
+## 特長
+
+- コールサインをフォネティックコードで読み上げ（`/` は「ポータブル」）
+- 日付（年月日／月日／読まない）、BAND、MODE、SENT（送信ナンバー）の読み上げ有無を選択可能
+- 読み上げ速度をスライダーで調整
+- 開始／停止ボタン
+
+## 動作環境
+
+- Windows（音声合成に SAPI5 を使用するため、Windows専用です）
+- Python 3
+- 日本語音声（Windows標準の Haruka など）
+
+## インストールと起動
+
+```
+pip install -r requirements.txt
+```
+
+`LogReader.bat` をダブルクリックするか、次のコマンドで起動します。
+
+```
+python LogReader.py
+```
+
+## 使い方
+
+1. 「ログファイルを開く」でログファイル（Shift-JIS の `.txt` / `.log`）を選択
+2. 読み上げ項目と速度を設定
+3. 「読み上げ開始」を押す（途中で止めるときは「停止」）
+
+## ライセンス
+
+[MIT License](LICENSE)
+
+## 作者
+
+JK1VUZ
