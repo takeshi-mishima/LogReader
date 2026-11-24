@@ -150,11 +150,12 @@ class LogReader:
             except Exception: 
                 pass
 
-    def _make_read_cmd(self, rows, total):
+    def _make_read_cmd(self, rows, total, speed):
         """
         連続読み上げ用のコマンド関数を生成する。
         """
         def cmd(sapi):
+            sapi.Rate = speed  # SAPIは生成したスレッド内で操作する
             self._speak(sapi, self.contest_name)
             for i, row in enumerate(rows):
                 if not self.is_running:
@@ -331,13 +332,11 @@ class LogReader:
         if not self.log_data or self.is_running: 
             return
             
-        speed = self.scale_speed.get()
-        # SAPIのRate範囲 (-10 to 10) に変換
-        self.sapi.Rate = int(self.scale_speed.get())
+        speed = int(self.scale_speed.get())  # SAPIのRate範囲(-10〜10)内
         
         self.is_running = True
         rows = list(self.log_data)
-        self._cmd_queue.put(self._make_read_cmd(rows, len(rows)))
+        self._cmd_queue.put(self._make_read_cmd(rows, len(rows), speed))
 
     def stop_reading(self):
         """
