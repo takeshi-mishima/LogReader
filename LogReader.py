@@ -146,7 +146,7 @@ class LogReader:
             sapi.Speak(make_ssml(text), SVSFIsXML)
         except Exception:
             try:
-                sapi.Speak("っ、 " + text)
+                sapi.Speak("っ、 " + re.sub(r"<[^>]+>", "", text))
             except Exception: 
                 pass
 
@@ -162,9 +162,10 @@ class LogReader:
                     return
                 
                 self.root.after(0, lambda n=i+1: self.lbl_status.config(text=f"読み上げ中: {n}/{total}"))
-                say_text = self.create_speech_text(row)
+                say_text = self.create_speech_text(row, rows[i-1] if i > 0 else None)
                 self._speak(sapi, say_text)
-                
+
+            self._speak(sapi, "終わり")
             self.is_running = False
             self.root.after(0, lambda: self.lbl_status.config(text="終了"))
         return cmd
@@ -213,6 +214,11 @@ class LogReader:
             for m in ["読む", "読まない"]:
                 ttk.Radiobutton(f, text=m, value=m, variable=getattr(self, var_name)).pack(side="left", padx=5)
 
+        # 前行と同じBAND・MODEの省略設定
+        self.var_same = tk.BooleanVar(value=False)
+        ttk.Checkbutton(config_frame, text="前行と同じBAND・MODEは「同じ」と読む",
+                        variable=self.var_same).pack(anchor="w", pady=2)
+
         # 速度設定
         spd_f = ttk.LabelFrame(self.root, text="速度")
         spd_f.pack(fill="x", padx=10, pady=5)
@@ -259,7 +265,7 @@ class LogReader:
         except Exception as e:
             self.lbl_status.config(text=f"読込エラー: {e}")
 
-    def create_speech_text(self, row):
+    def create_speech_text(self, row, prev=None):
         """
         1行のログデータから読み上げ用の文字列を生成する。
         """
@@ -281,10 +287,17 @@ class LogReader:
         parts.append(" ".join(list(t_num)))
 
         # バンド・モード
+        items = []  # (今回の値, 前行の値) の組。読む項目だけ入れる
         if self.var_read_band.get() == "読む":
-            parts.append(row[2])
+            items.append((row[2], prev[2] if prev else None))
         if self.var_read_mode.get() == "読む":
-            parts.append(row[3])
+            items.append((row[3], prev[3] if prev else None))
+        if items:
+            # 読む項目がすべて前行と同じ場合だけ「同じ」を1回読む
+            if self.var_same.get() and prev and all(cur == old for cur, old in items):
+                parts.append("同じ")
+            else:
+                parts.extend(cur for cur, _ in items)
 
         # コールサイン処理
         call = row[4].upper()
