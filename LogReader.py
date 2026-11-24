@@ -1,7 +1,7 @@
 """
-Contest Log Reader
+Log Reader
 
-コンテストログの音声読み上げアプリ
+ログの音声読み上げアプリ
 対応フォーマット：
  JARLコンテストログ R1.0
 
@@ -41,6 +41,14 @@ PHONETIC = {
 # -----------------------------------------------------------------------------
 # ユーティリティ関数
 # -----------------------------------------------------------------------------
+
+def speak_exchange(text):
+    """
+    RSTやコンテストナンバーを読み上げ用の文字列にする。
+    数字は1文字ずつ、英字はフォネティックコードで読む。
+    """
+    return " ".join(PHONETIC[c] if c.isalpha() and c in PHONETIC else c
+                    for c in text.upper())
 
 def make_ssml(text):
     """
@@ -317,9 +325,9 @@ class LogReader:
 
         # 送信・受信コンテストナンバー
         if self.var_read_sent.get() == "読む":
-            parts.append(" ".join(list(row[5])) + " " + " ".join(list(row[6])))
+            parts.append(speak_exchange(row[5]) + " " + speak_exchange(row[6]))
 
-        parts.append(" ".join(list(row[7])) + " " + " ".join(list(row[8])))
+        parts.append(speak_exchange(row[7]) + " " + speak_exchange(row[8]))
 
         return " 、 ".join(parts)
 
